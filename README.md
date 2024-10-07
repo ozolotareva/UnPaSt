@@ -7,10 +7,15 @@ UnPaSt is a novel method for identification of differentially expressed bicluste
 ## Cite
 UnPaSt preprint [https://arxiv.org/abs/2408.00200](https://arxiv.org/abs/2408.00200).
 
+Code: [https://github.com/ozolotareva/unpast_paper/](https://github.com/ozolotareva/unpast_paper/)
+
+## Web server
+[Run UnPaSt at CoSy.Bio server](https://apps.cosy.bio/unpast/)
+
 ## Install
 ![Tests status](https://github.com/ozolotareva/unpast/actions/workflows/run_tests.yml/badge.svg)
 
-### Docker environment
+### Docker environment [to be updated]
 UnPaSt environment is available also as a Docker image.
 
 ```bash
@@ -24,7 +29,7 @@ command="python unpast/run_unpast.py --exprs unpast/tests/scenario_B500.exprs.ts
 docker run --rm -u $(id -u):$(id -g) -v "$(pwd)":/data --entrypoint bash freddsle/unpast -c "cd /data && PYTHONPATH=/data $command"
 ```
 
-### Requirements:
+### Requirements: [to be updated]
 ```
 Python (version 3.8.16):
     fisher==0.1.9
@@ -45,7 +50,7 @@ R (version 4.3.1):
     limma==3.42.2
 ```
 
-### Installation tips
+### Installation tips [to be updated]
 
 It is recommended to use "BiocManager" for the installation of WGCNA:
 ```R
