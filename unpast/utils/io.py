@@ -73,7 +73,7 @@ def read_bic_table(file_name: str, parse_metadata: bool = False) -> pd.DataFrame
 
 
 def write_bic_table(
-    bics: pd.DataFrame,
+    biclusters: pd.DataFrame,
     results_file_name: str,
     to_str: bool = True,
     add_metadata: bool = False,
@@ -95,7 +95,7 @@ def write_bic_table(
     Writes a bicluster table to a tab-separated file and optionally adds metadata to the file. 
 
     Args:
-        bics (pd.DataFrame): A DataFrame containing biclusters.
+        biclusters (pd.DataFrame): A DataFrame containing biclusters.
         results_file_name (str): The path where the results should be written.
 
 
@@ -124,7 +124,7 @@ def write_bic_table(
     Returns:
         None: This function does not return any value, it writes the results to a file.
     """
-
+    bics = biclusters.copy()
     if add_metadata:
         metadata = (
             "#seed="
