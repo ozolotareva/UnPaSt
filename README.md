@@ -2,8 +2,10 @@
 
 UnPaSt is a novel method for identification of differentially expressed biclusters.
 
-<img src="https://github.com/ozolotareva/unpast/blob/main/docs/DESMOND2_steps2.png"  height="350">
+<img src="https://apps.cosy.bio/unpast/assets/DESMOND2_steps2.png"  height="350">
 
+## Cite
+UnPaSt preprint [https://arxiv.org/abs/2408.00200](https://arxiv.org/abs/2408.00200).
 
 ## Install
 ![Tests status](https://github.com/ozolotareva/unpast/actions/workflows/run_tests.yml/badge.svg)
@@ -36,7 +38,7 @@ Python (version 3.8.16):
     scikit-network==0.24.0
     scipy==1.7.1
     statsmodels==0.13.2
-    lifelines==0.27.4
+    kneed==0.8.1
 
 R (version 4.3.1):
     WGCNA==1.70-3
@@ -103,8 +105,5 @@ Along with the biclustering result, UnPaSt creates three files with intermediate
   - `<basename>.[parameters].background.tsv` stores background distributions of SNR values for each evaluated bicluster size.
 These files can be used to restart UnPaSt with the same input and seed from the feature clustering step and skip time-consuming feature binarization. 
 
-## Cite
-UnPaSt preprint [https://arxiv.org/abs/2408.00200](https://arxiv.org/abs/2408.00200).
-
 ## Versions
-UnPaSt version used in PathoPlex paper: [UnPaSt_PathoPlex.zip](https://github.com/ozolotareva/unpast/blob/main/UnPaSt_PathoPlex.zip)
+UnPaSt version used in PathoPlex paper: [UnPaSt_PathoPlex.zip](https://github.com/ozolotareva/unpast_paper/blob/main/paper/UnPaSt_PathoPlex.zip)
