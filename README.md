@@ -215,5 +215,5 @@ The following table provides links to the corresponding code versions for some p
 
 | Paper | Corresponding code version | 
 |-------|------------------------------|
-| UnPaSt preprint: https://arxiv.org/abs/2408.00200 | [UnPaSt paper repository](https://github.com/ozolotareva/unpast_paper) |
+| UnPaSt preprint: https://arxiv.org/abs/2408.00200v2 | [UnPaSt paper repository](https://github.com/ozolotareva/unpast_paper) |
 | PathoPlex paper: https://www.nature.com/articles/s41586-025-09225-2 | [UnPaSt_PathoPlex.zip](https://github.com/ozolotareva/unpast/blob/main/notebooks/UnPaSt_PathoPlex.zip) |
