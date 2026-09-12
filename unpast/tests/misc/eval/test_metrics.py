@@ -111,8 +111,8 @@ def test_reproducible_big_random():
         repeated_metrics.append(metrics)
 
     metrics_df = pd.DataFrame(repeated_metrics)
-    assert _hash_table(metrics_df.drop(columns=["AP_ARI"])) == 18424040714768897732
-    assert _hash_table(metrics_df) == 8765606674938893851
+    assert _hash_table(metrics_df.drop(columns=["AP_ARI"])) == 17285711652143097685
+    assert _hash_table(metrics_df) == 6537791270467914040
 
     # different extra calculations:
     params_metrics = {}
@@ -126,8 +126,8 @@ def test_reproducible_big_random():
                 adjust_pvals=adjust_pvals,
             )
     metrics_df_params = pd.DataFrame(params_metrics)
-    assert _hash_table(metrics_df_params.drop(index=["AP_ARI"])) == 9152769111870831455
-    assert _hash_table(metrics_df_params) == 912992108563420917
+    assert _hash_table(metrics_df_params.drop(index=["AP_ARI"])) == 892002411010055165
+    assert _hash_table(metrics_df_params) == 17996364079568771923
 
 
 def test_calc_metrics_empty_data():

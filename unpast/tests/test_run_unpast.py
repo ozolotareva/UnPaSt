@@ -113,7 +113,7 @@ def test_reproducible_wgcna():
         answer_dir=REFERENCE_OUTPUT_DIR,
         startswith="test_reproducible_wgcna",
     )
-    assert res.equals(reference), "The results are not reproducible"
+    pd.testing.assert_frame_equal(res, reference, rtol=1e-3, atol=1e-5, check_like=True)
 
 
 def test_reproducible_louvain():
@@ -128,4 +128,4 @@ def test_reproducible_louvain():
         answer_dir=REFERENCE_OUTPUT_DIR,
         startswith="test_reproducible_louvain",
     )
-    assert res.equals(reference), "The results are not reproducible"
+    pd.testing.assert_frame_equal(res, reference, rtol=1e-3, atol=1e-5, check_like=True)

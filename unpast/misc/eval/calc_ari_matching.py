@@ -32,14 +32,15 @@ def calc_ari_matching(
     min_n_samples: int = 1,
     verbose: bool = False,
 ) -> tuple[pd.Series, pd.DataFrame]:
-    # select the sample set best matching the subtype based on p-value
+    # select the sample set best matching the subtype based on overlap p-value
     # adj. overlap p-value should be:
     # below pval_cutoff, e.g. < 0.05
     # the lowest among overlap p-values computed for this sample set vs all subtypes
-    # cluster with the highest J is chosen as the best match
+    # cluster with the stonges overlap (max. ARI or max. Jaccard) is chosen as the best match
     if sample_clusters_ is None or sample_clusters_.shape[0] == 0:
         return pd.DataFrame(), pd.DataFrame()
 
+    ### TBD: ensure sample_clusters_ use the same sample ids as in all_samples
     sample_clusters = _filter_sample_clusters(
         sample_clusters_,
         min_n_samples=min_n_samples,
@@ -52,8 +53,10 @@ def calc_ari_matching(
 
     best_matches = []
     performances = {}
+    # for each sample classification in known_groups
     for cl in known_groups.keys():
-        perf_val, best_match_stats = _process_class(
+        # find best matches of true/knonw clusters `known_groups[cl]` among found sample_clusters
+        perf_val, best_match_stats = _process_classification(
             cl,
             sample_clusters,
             known_groups[cl],
@@ -70,7 +73,7 @@ def calc_ari_matching(
     return performances, best_matches
 
 
-def _process_class(
+def _process_classification(
     cl: str,
     sample_clusters: pd.DataFrame,
     known_groups_cl: dict[str, set],
@@ -88,20 +91,22 @@ def _process_class(
     for subt in known_groups_cl.keys():
         N += len(known_groups_cl[subt])
 
+    # calculates raw p-values, ARIs/Jaccards
+    # for all predicted vs all true clusters   
     pvals, is_enriched, performance = _evaluate_overlaps(
         sample_clusters, known_groups_cl, all_samples, method=performance_measure
     )
 
     pvals = _adjust_pvals_df(pvals, adjust_pvals=adjust_pvals, pval_cutoff=pval_cutoff)
+    
     best_match_stats = {}
-    best_pval = pvals.min(axis=1)
+    best_pval = pvals.min(axis=1) # lowest p-val per bic. across subtypes
     for subt in known_groups_cl.keys():
         w = len(known_groups_cl[subt]) / N  # weight
         subt_pval = pvals[subt]
-        passed_pvals = subt_pval[subt_pval == best_pval]
-        passed_pvals = subt_pval[subt_pval < pval_cutoff].index.values
-        d = performance.loc[passed_pvals, subt].sort_values(ascending=False)
-        if d.shape[0] == 0:
+        # keep only the matches that pass the adjusted p-value cutoff
+        passed_pvals = subt_pval[subt_pval < pval_cutoff].sort_values(ascending=False)
+        if passed_pvals.shape[0] == 0: # if no significant matches 
             best_match_stats[subt] = {
                 "bm_id": np.nan,
                 performance_measure: 0,
@@ -112,20 +117,21 @@ def _process_class(
                 "n_samples": 0,
             }
         else:
-            bm_j = d.values[0]
-            d = d[d == bm_j]
-            bm_id = sorted(
-                pvals.loc[d.index.values, :]
-                .sort_values(by=subt, ascending=True)
-                .index.values
-            )[0]
-            bm_pval = pvals.loc[bm_id, subt]
-            bm_j = performance.loc[bm_id, subt]
+            # sort passed matches by their performance decreasing and p-vals increasing
+            d = pd.concat([performance.loc[passed_pvals.index.values, subt],passed_pvals],axis=1)
+            d.columns = [performance_measure,"adj_pval"]
+            # choose significant match with highest ARI (or J) and lowest pval
+            d = d.sort_values(by= [performance_measure,"adj_pval"], ascending=[False, True])
+            bm_id = d.index.values[0] # best match index
+            bm_pval, bm_performance = d.loc[bm_id,["adj_pval",performance_measure]].values
+            #if performance_measure == "ARI": # lower-limit is 0, ARI can be negative
+            #    bm_performance = max(0,bm_performance)
+                
             bm_is_enrich = is_enriched.loc[bm_id, subt]
             bm_samples = sample_clusters.loc[bm_id, "samples"]
             best_match_stats[subt] = {
                 "bm_id": bm_id,
-                performance_measure: bm_j,
+                performance_measure: bm_performance, 
                 "weight": w,
                 "adj_pval": bm_pval,
                 "is_enriched": bm_is_enrich,
@@ -150,7 +156,7 @@ def _filter_sample_clusters(
     """Filter sample_clusters DataFrame according to provided thresholds.
 
     Args:
-        sample_clusters_: DataFrame containing sample clusters to filter.
+        sample_clusters_: DataFrame containing "samples" column with sample clusters to filter.
         min_n_samples: Minimum number of samples required in a cluster.
         min_SNR: Minimum signal-to-noise ratio threshold.
         min_n_genes: Minimum number of genes required (or False to skip).
@@ -326,21 +332,6 @@ def _evaluate_overlaps(
             group_only = len(group_members.difference(bic_members))
             union = shared + bic_only + group_only
             pval = pvalue(shared, bic_only, group_only, N - union)
-
-            # some commented out code in the Jaccard version above for under-representation handling
-            """
-            pvals[group][i] = 1
-            if pval.right_tail < pval.left_tail:
-                pvals[group][i] = pval.right_tail
-                is_enriched[group][i] = True
-            # if under-representation, flip query set
-            else:
-                pvals[group][i] = pval.left_tail # save left-tail p-value and record that this is not enrichment
-                is_enriched[group][i] = False
-                bic_members = all_elements.difference(bic_members)
-                shared = len(bic_members.intersection(group_members))
-                union = len(bic_members.union(group_members))
-            """
 
             pvals[group][i] = pval.two_tail
             is_enriched[group][i] = False
